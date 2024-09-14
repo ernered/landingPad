@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script will install folders for a pentest and grab some commonn tools for testing
+# script to create folders for a pentest and grab tools. Work in progress.
 # Define directories to be created
 DIRECTORIES=(
   "osint"
@@ -8,6 +8,7 @@ DIRECTORIES=(
   "exploitation"
   "creds"
   "wordlists"
+  "tools"
 )
 
 # Tools to be installed
@@ -33,6 +34,12 @@ TOOLS=(
   "netexec"
 )
 
+# GitHub repositories to be cloned
+GITHUB_REPOS=(
+  "https://github.com/topotam/PetitPotam.git"
+  "https://github.com/blacklanternsecurity/TREVORspray.git"
+)
+
 # Function to create directories
 create_directories() {
   echo "Creating directories..."
@@ -50,7 +57,7 @@ create_directories() {
   done
 }
 
-# Function to install tools
+# Function to install some tools
 install_tools() {
   echo "Updating package list..."
   sudo apt-get update -y
@@ -68,7 +75,7 @@ install_tools() {
   done
 }
 
-# Function to download wordlists
+# Function to download SecLists wordlists
 download_wordlists() {
   echo "Downloading wordlists..."
   if [ ! -d "wordlists/SecLists" ]; then
@@ -83,11 +90,30 @@ download_wordlists() {
   fi
 }
 
-# Main script
+# Function to install tools from GitHub
+install_github_tools() {
+  echo "Installing tools from GitHub..."
+  for repo in "${GITHUB_REPOS[@]}"; do
+    repo_name=$(basename "$repo" .git)
+    if [ ! -d "tools/$repo_name" ]; then
+      git clone "$repo" "tools/$repo_name"
+      if [ $? -eq 0 ]; then
+        echo "$repo_name installed successfully."
+      else
+        echo "Failed to install $repo_name. Please check your internet connection or git installation."
+      fi
+    else
+      echo "$repo_name already exists in the tools directory."
+    fi
+  done
+}
+
+# Pull it all together
 echo "Setting up folders and installing tools for penetration testing..."
 
 create_directories
 install_tools
 download_wordlists
+install_github_tools
 
-echo "Setup complete!"
+echo "Setup complete! GLHF! "
